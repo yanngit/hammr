@@ -86,6 +86,7 @@ class Scan(Cmd, CoreGlobal):
                               help="the directory where to install the uforge-scan.bin binary used to execute the deep scan")
         optional.add_argument('--exclude', dest='exclude', nargs='+', required=False,
                               help="a list of directories or files to exclude during the deep scan")
+        optional.add_argument('-o', '--overlay', dest='overlay', action='store_true', required=False, help="perform a scan with overlay into the given scanned instance")
         return doParser
 
     def do_run(self, args):
@@ -96,6 +97,19 @@ class Scan(Cmd, CoreGlobal):
 
             #if the help command is called, parse_args returns None object
             if not doArgs:
+                    return 2
+
+            #check if you can add a scan to a scanned instance based on the overlay option
+            myScannedInstance = self.api.Users(self.login).Scannedinstances.Getall(Includescans="true", Name = doArgs.name)
+            myScannedInstance = myScannedInstance.scannedInstances.scannedInstance
+
+            if myScannedInstance is not None and len(myScannedInstance) > 0:
+                myScannedInstance = myScannedInstance[0]
+                if((doArgs.overlay and not myScannedInstance.overlayIncluded) or (not doArgs.overlay and myScannedInstance.overlayIncluded)):
+                    withOverlayStr = 'regular scan'
+                    if doArgs.overlay:
+                        withOverlayStr = 'scan with overlay'
+                    printer.out("Performing {0} into the scanned instance [{1}] is not allowed. Please retry with another one.".format(withOverlayStr, doArgs.name), printer.ERROR)
                     return 2
 
             # download scan binary
@@ -545,8 +559,11 @@ class Scan(Cmd, CoreGlobal):
             if args.exclude:
                 for ex in args.exclude:
                     exclude += "-e " + ex + " "
+            overlay = ""
+            if args.overlay:
+                overlay = "-o"
             client.exec_command(
-                'chmod +x ' + dir + '/' + constants.SCAN_BINARY_NAME + '; nohup ' + dir + '/' + constants.SCAN_BINARY_NAME + ' -u ' + uforge_login + ' -p ' + uforge_password + ' -U ' + uforge_url + ' -n ' + args.name + ' ' + exclude + ' >/dev/null 2>&1 &')
+                'chmod +x ' + dir + '/' + constants.SCAN_BINARY_NAME + '; nohup ' + dir + '/' + constants.SCAN_BINARY_NAME + ' -u ' + uforge_login + ' -p ' + uforge_password + ' -U ' + uforge_url + ' ' + overlay + ' -n ' + args.name + ' ' + exclude + ' >/dev/null 2>&1 &')
             client.close()
 
         except paramiko.AuthenticationException as e:
