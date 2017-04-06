@@ -99,18 +99,8 @@ class Scan(Cmd, CoreGlobal):
             if not doArgs:
                     return 2
 
-            #check if you can add a scan to a scanned instance based on the overlay option
-            myScannedInstance = self.api.Users(self.login).Scannedinstances.Getall(Includescans="true", Name = doArgs.name)
-            myScannedInstance = myScannedInstance.scannedInstances.scannedInstance
-
-            if myScannedInstance is not None and len(myScannedInstance) > 0:
-                myScannedInstance = myScannedInstance[0]
-                if((doArgs.overlay and not myScannedInstance.overlayIncluded) or (not doArgs.overlay and myScannedInstance.overlayIncluded)):
-                    withOverlayStr = 'regular scan'
-                    if doArgs.overlay:
-                        withOverlayStr = 'scan with overlay'
-                    printer.out("Performing {0} into the scanned instance [{1}] is not allowed. Please retry with another one.".format(withOverlayStr, doArgs.name), printer.ERROR)
-                    return 2
+            if not self.check_overlay_option_is_allowed(doArgs.name, doArgs.overlay):
+                return 2
 
             # download scan binary
             uri = generics_utils.get_uforge_url_from_ws_url(self.api.getUrl())
@@ -192,6 +182,22 @@ class Scan(Cmd, CoreGlobal):
     def help_run(self):
         doParser = self.arg_run()
         doParser.print_help()
+
+    def check_overlay_option_is_allowed(self, name, overlay):
+        myScannedInstance = self.api.Users(self.login).Scannedinstances.Getall(Includescans="true", Name=name)
+        myScannedInstance = myScannedInstance.scannedInstances.scannedInstance
+        if myScannedInstance is not None and len(myScannedInstance) > 0:
+            myScannedInstance = myScannedInstance[0]
+            if ((overlay and not myScannedInstance.overlayIncluded) or (
+                not overlay and myScannedInstance.overlayIncluded)):
+                scanTypeString = 'regular scan'
+                if overlay:
+                    scanTypeString = 'scan with overlay'
+                printer.out(
+                    "Performing {0} into the scanned instance [{1}] is not allowed. Please retry with another one.".format(
+                        scanTypeString, name), printer.ERROR)
+                return False
+        return True
 
     def arg_build(self):
         doParser = ArgumentParser(prog=self.cmd_name + " build", add_help=True,

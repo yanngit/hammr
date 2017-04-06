@@ -15,7 +15,7 @@ Optionally, at step #2, you can import the scan report to create a template. Thi
 
 First, scan the system you wish to migrate by running ``scan run``. This "deep scans" the live system, reporting back the meta-data of every file and package that makes up the running workload. The following is an example of a scan of a live system:
 
-.. note:: In this example, we run a regular scan (without included overlay). If you want it, add --overlay argument to the command.
+.. note:: The following example shows a simple scan (without overlay). If you would like the overlay, add ``--overlay`` argument to the command.
 
 .. code-block:: shell
 
