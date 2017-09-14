@@ -23,6 +23,7 @@ from hammr_utils import *
 from progressbar import Bar, ProgressBar, ReverseBar, UnknownLength, BouncingBar
 from ussclicore.utils import progressbar_widget
 import pyxb.binding.content as pyxb_content
+from texttable import Texttable
 import getpass
 import re
 
@@ -246,9 +247,12 @@ def print_deploy_info(image_object, status, deployed_instance_id):
         deployment = image_object.api.Users(image_object.login).Deployments(deployed_instance_id).Get()
         instances = deployment.instances.instance
         instance = instances[-1]
-        printer.out("Cloud Provider: " + format_cloud_provider(instance.cloudProvider))
-        printer.out("Region: " + instance.location.provider)
-        printer.out("IP address: " + instance.hostname)
+
+        table = Texttable(200)
+        table.set_cols_dtype(["t", "t", "t", "t"])
+        table.header(["Cloud Provider", "Region", "IP address", "Deployment id"])
+        table.add_row([format_cloud_provider(instance.cloudProvider), instance.location.provider, instance.hostname, deployed_instance_id])
+        print table.draw() + "\n"
         return 0
 
 def show_deploy_progress_without_percentage(image_object, deployed_instance_id):
