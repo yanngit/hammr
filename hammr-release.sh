@@ -1,6 +1,6 @@
 #!/bin/bash
 # What is doing this script ?
-# This script is trying to automate stuff we use to do by hand to release Hammr
+# This script is automating stuff we use to do by hand to release Hammr
 # He's performing in the first place some checks (run inside build-env, not existing directories, existing uforge-python-sdk version ...) to run correctly
 # Then displaying a welcome message with the resume of what has been passed as arguments and some agreements regarding what he is doing and what you
 # should do if he fails.
@@ -255,11 +255,8 @@ verify_latest_command "Cannot change directory, maybe an issue with $WORKING_DIR
 git checkout -b $HAMMR_RELEASE_BRANCH
 verify_latest_command "Cannot checkout branch"
 
-#Now we change the version of Hammr, SDK and possibly ussclicore
+#Now we change the version of Hammr and SDK
 sed -i "s/'uforge_python_sdk.*'/'uforge_python_sdk==$SDK_VERSION'/g" setup.py
-if [ $CLICORE_VERSION ]; then
-  sed -i "s/'ussclicore.*'/'ussclicore==$CLICORE_VERSION'/g" setup.py
-fi
 sed -i "s/VERSION=.*/VERSION=\"$HAMMR_VERSION\"/g" ./hammr/utils/constants.py
 
 # Then we build and push the artifact to Pypi
