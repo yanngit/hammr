@@ -159,7 +159,7 @@ fi
 
 #Setting the directory used for the release and Hammr url
 WORKING_DIRECTORY="$HOME/hammr-release-$HAMMR_VERSION"
-HAMMR_REPO="usharesoft/hammr"
+HAMMR_REPO="yanngit/hammr"
 GIT_ADDRESS="https://github.com"
 GIT_API_ADDRESS="https://api.github.com"
 NB_STEPS=5
@@ -176,7 +176,7 @@ if [ $HOME != "/home/ussrelease" ]; then
 fi
 #Must have a file with pypi credentials
 if [ ! -f "$HOME/.pypirc" ]; then
-  release_failed "The PyPI UShareSoft credentials file shoud be present in $HOME/.pypirc"
+  release_failed "The PyPI `UShareSoft` credentials file shoud be present in $HOME/.pypirc"
 fi
 #Must not be inside git repo
 if [ -d ".git" ]; then
@@ -193,10 +193,10 @@ if [ $STATUS -ne 200 ]; then
   release_failed "uforge_python_sdk $SDK_VERSION is not available on $PYPI_URL"
 fi
 #Verify hammr version we are releasing is not on Pypi
-STATUS=$(curl -o /dev/null --silent --head --write-out '%{http_code}' "$PYPI_URL/hammr/$HAMMR_VERSION")
-if [ $STATUS -eq 200 ]; then
-  release_failed "hammr $HAMMR_VERSION is already available on $PYPI_URL"
-fi
+#STATUS=$(curl -o /dev/null --silent --head --write-out '%{http_code}' "$PYPI_URL/hammr/$HAMMR_VERSION")
+#if [ $STATUS -eq 200 ]; then
+#  release_failed "hammr $HAMMR_VERSION is already available on $PYPI_URL"
+#fi
 
 #Welcome message
 HAMMR_VERSION_BOLD=$(boldify "$HAMMR_VERSION")
@@ -265,10 +265,10 @@ verify_latest_command "Cannot build hammr artifact ... "
 
 
 #Upload on pypi
-twine upload -r pypi dist/*
-if [ $? -ne 0 ]; then
-  release_failed "Cannot upload hammr artifact ... "
-fi
+#twine upload -r pypi dist/*
+#if [ $? -ne 0 ]; then
+#  release_failed "Cannot upload hammr artifact ... "
+#fi
 
 step_completed 1
 display_running_step
